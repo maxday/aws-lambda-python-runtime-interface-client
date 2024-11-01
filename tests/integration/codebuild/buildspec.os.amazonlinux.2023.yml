@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    OS_DISTRIBUTION: amazonlinux
+    OS_DISTRIBUTION: amazonlinux2023
     PYTHON_LOCATION: "/usr/local/bin/python3"
     TEST_NAME: "aws-lambda-python-rtc-amazonlinux-test"
 batch:
@@ -15,12 +15,9 @@ batch:
       env:
         variables:
           DISTRO_VERSION:
-            - "2"
+            - "2023"
           RUNTIME_VERSION:
-            - "3.9"
-            - "3.10"
-            - "3.11"
-            - "3.12"
+            - "3.13"
 phases:
   pre_build:
     commands:
@@ -43,9 +40,6 @@ phases:
         cp "tests/integration/docker/Dockerfile.echo.${OS_DISTRIBUTION}" \
           "${SCRATCH_DIR}/Dockerfile.echo.${OS_DISTRIBUTION}.tmp"
       - >
-        echo "COPY ${SCRATCH_DIR}/${RIE} /usr/bin/${RIE}" >> \
-          "${SCRATCH_DIR}/Dockerfile.echo.${OS_DISTRIBUTION}.tmp"
-      - >
         echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' > /etc/docker/daemon.json
         service docker restart
       - echo "Building image ${IMAGE_TAG}"
@@ -56,6 +50,7 @@ phases:
           --build-arg RUNTIME_VERSION="${RUNTIME_VERSION}" \
           --build-arg DISTRO_VERSION="${DISTRO_VERSION}" \
           --build-arg ARCHITECTURE="${ARCHITECTURE}" \
+          --build-arg RIE="${RIE}" \
           --load
   build:
     commands:
