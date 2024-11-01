@@ -29,7 +29,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Run amazonlinux integration tests
-      run: DISTRO=amazonlinux make test-integ
+      run: DISTRO=amazonlinux2 make test-integ
+
+  amazonlinux2023:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run amazonlinux integration tests
+      run: DISTRO=amazonlinux2023 make test-integ
 
   debian:
     runs-on: ubuntu-latest

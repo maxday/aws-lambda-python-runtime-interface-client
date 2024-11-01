@@ -2,9 +2,9 @@ version: 0.2
 
 env:
   variables:
-    OS_DISTRIBUTION: debian
-    PYTHON_LOCATION: "/usr/local/bin/python"
-    TEST_NAME: "aws-lambda-python-rtc-debian-test"
+    OS_DISTRIBUTION: amazonlinux
+    PYTHON_LOCATION: "/usr/local/bin/python3"
+    TEST_NAME: "aws-lambda-python-rtc-amazonlinux-test"
 batch:
   build-matrix:
     static:
@@ -15,13 +15,8 @@ batch:
       env:
         variables:
           DISTRO_VERSION:
-            - "bookworm"
-            - "bullseye"
+            - "2023"
           RUNTIME_VERSION:
-            - "3.9"
-            - "3.10"
-            - "3.11"
-            - "3.12"
             - "3.13"
 phases:
   pre_build:
@@ -42,13 +37,7 @@ phases:
         fi
       - tar -xvf tests/integration/resources/${RIE}.tar.gz --directory "${SCRATCH_DIR}"
       - >
-        cp "tests/integration/docker/Dockerfile.echo.${OS_DISTRIBUTION}" \
-          "${SCRATCH_DIR}/Dockerfile.echo.${OS_DISTRIBUTION}.tmp"
-      - >
-        echo "COPY ${SCRATCH_DIR}/${RIE} /usr/bin/${RIE}" >> \
-          "${SCRATCH_DIR}/Dockerfile.echo.${OS_DISTRIBUTION}.tmp"
-      - >
-        echo "RUN apt-get update && apt-get install -y curl" >> \
+        cp "tests/integration/docker/Dockerfile.echo.${OS_DISTRIBUTION}${DISTRO_VERSION}" \
           "${SCRATCH_DIR}/Dockerfile.echo.${OS_DISTRIBUTION}.tmp"
       - >
         echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' > /etc/docker/daemon.json
@@ -60,6 +49,8 @@ phases:
           -t "${IMAGE_TAG}" \
           --build-arg RUNTIME_VERSION="${RUNTIME_VERSION}" \
           --build-arg DISTRO_VERSION="${DISTRO_VERSION}" \
+          --build-arg ARCHITECTURE="${ARCHITECTURE}" \
+          --build-arg RIE="${RIE}" \
           --load
   build:
     commands:
